@@ -7,7 +7,7 @@ export type Vehicle = {
   colour: string;
 };
 
-class VehicleRepository {
+export class VehicleRepository {
   private _vehicles: Vehicle[];
 
   constructor() {

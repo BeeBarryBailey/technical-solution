@@ -1,7 +1,7 @@
 import express, { Express, Request, Response } from 'express';
 import VehicleRepository from './repositories/vehicle-repository';
 
-const app: Express = express();
+export const app: Express = express();
 const port = 3000;
 const vehicleRepository = new VehicleRepository;
 

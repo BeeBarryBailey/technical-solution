@@ -4,6 +4,6 @@ export default defineConfig({
     test: {
         globals: true,
         environment: 'node',
-        include: ['tests/vehicle-endpoints.test.ts']
+        include: ['tests/vehicle-handlers.test.ts']
     }
 })
