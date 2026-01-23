@@ -19,35 +19,35 @@ export class VehicleRepository {
   constructor() {
     const file = fs.readFileSync("./repositories/vehicles.json", "utf8");
     this._vehicles = JSON.parse(file);
-  }
+  };
 
   getAll(): Vehicle[] {
     return this._vehicles;
-  }
+  };
 
   getByMake(make: string): Vehicle[] {
     return this._vehicles.filter(
       vehicle => vehicle.make.toLowerCase() === make.toLowerCase()
     );
-  }
+  };
 
   getByModel(model: string): Vehicle[] {
     return this._vehicles.filter(
       vehicle => vehicle.model.toLowerCase() === model.toLowerCase()
     );
-  }
+  };
 
   getByMinPrice(minPrice: number): Vehicle[] {
     return this._vehicles.filter(
       vehicle => vehicle.price >= minPrice
     );
-  }
+  };
 
   getByMaxPrice(maxPrice: number): Vehicle[] {
     return this._vehicles.filter(
       vehicle => vehicle.price <= maxPrice
     );
-  }
-}
+  };
+};
 
 export default VehicleRepository;

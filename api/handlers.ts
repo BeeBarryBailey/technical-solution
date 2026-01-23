@@ -17,7 +17,7 @@ export const getAllHandler = (vehicleRepository: VehicleRepository) => async (re
 export const getByMakeHandler = (vehicleRepository: VehicleRepository) => async (req: Request, res: Response) => {
   const make = req.params.make;
 
-  if (!make || typeof make !== 'string') {
+  if (!make) {
     return res.status(400).json({ message: 'make is required' });
   };
 
@@ -36,7 +36,7 @@ export const getByMakeHandler = (vehicleRepository: VehicleRepository) => async 
 export const getByModelHandler = (vehicleRepository: VehicleRepository) => async (req: Request, res: Response) => {
   const model = req.params.model;
 
-  if (!model || typeof model !== 'string') {
+  if (!model) {
     return res.status(400).json({ message: 'model is required' });
   };
 
@@ -61,7 +61,7 @@ export const getByMinPriceHandler = (vehicleRepository: VehicleRepository) => as
   }
   else if (isNaN(minPrice)) {
     return res.status(400).json({ message: 'minPrice must be a number' });
-  }
+  };
 
   try {
     const vehicles = await vehicleRepository.getByMinPrice(minPrice);
@@ -84,7 +84,7 @@ export const getByMaxPriceHandler = (vehicleRepository: VehicleRepository) => as
   }
   else if (isNaN(maxPrice)) {
     return res.status(400).json({ message: 'maxPrice must be a number' });
-  }
+  };
 
   try {
     const vehicles = await vehicleRepository.getByMaxPrice(maxPrice);
