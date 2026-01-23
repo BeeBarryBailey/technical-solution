@@ -1,54 +1,64 @@
-import { describe, test, expect } from 'vitest';
-import request from 'supertest';
+import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { Request, Response } from 'express';
+import { getAllHandler } from '../api/handlers';
 
-import { VehicleRepository } from '../repositories/vehicle-repository';
+import VehicleRepository from '../repositories/vehicle-repository';
 
-import {app} from '../index';
+describe('vehicle search handlers', () => {
+  let mockRepo: { getAll: ReturnType<typeof vi.fn> };
+  let req: Partial<Request>;
+  let res: Partial<Response>;
 
-describe("vehicle repository endpoint requests", () => {
-    test("valid GET /vehicles request returns 200 and all vehicles", async () => {
-        const vehicleRepo = new VehicleRepository;
-        const response = await request(app).get('/vehicles');
+  beforeEach(() => {
+    mockRepo = {
+      getAll: vi.fn(),
+    };
+    req = {};
+    res = {
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn(),
+    };
+  });
 
-        const vehicles = vehicleRepo.getAll();
+  describe('getAll handler', () => {
+    test('returns 200 and all vehicles', async () => {
+      const vehicles = [
+        { make: 'Toyota', model: 'Corolla', trim: 'LE', colour: 'Blue' },
+        { make: 'Honda', model: 'Civic', trim: 'EX', colour: 'Red' },
+      ];
 
-        expect(response.status).toBe(200);
-        expect(response.body.count).toBe(vehicles.length);
+      mockRepo.getAll.mockReturnValue(vehicles);
+
+      const handler = getAllHandler(
+        mockRepo as unknown as VehicleRepository
+      );
+
+      await handler(req as Request, res as Response);
+
+      expect(mockRepo.getAll).toHaveBeenCalledOnce();
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        data: vehicles,
+        count: vehicles.length,
+      });
     });
 
-    test("valid GET /vehicles/make request returns 200 and all vehicles by make", async () => {
+    test('returns 500 if repository throws', async () => {
+      mockRepo.getAll.mockImplementation(() => {
+        throw new Error('failed to fetch vehicles');
+      });
 
+      const handler = getAllHandler(
+        mockRepo as unknown as VehicleRepository
+      );
+
+      await handler(req as Request, res as Response);
+
+      expect(mockRepo.getAll).toHaveBeenCalledOnce();
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'failed to fetch vehicles',
+      });
     });
-
-    test("valid GET /vehicles/model request returns 200 and all vehicles by model", async () => {
-
-    });
-
-    test("valid GET /vehicles/minPrice request returns 200 and all vehicles by minimum price", async () => {
-
-    });
-
-    test("valid GET /vehicles/maxPrice request returns 200 and all vehicles by maximum price", async () => {
-
-    });
-
-    test("valid GET /vehicles/minMaxPrice request returns 200 and all vehicles by minimum and maximum price", async () => {
-
-    });
-
-    test("valid GET /vehicles/mileage request returns 200 and all vehicles by mileage", async () => {
-
-    });
-
-    test("valid POST /vehicles request returns 200 and adds a new vehicle to the dataset", async () => {
-
-    });
-
-    test("invalid GET request returns 404 and empty array", async () => {
-
-    });
-
-    test("invalid POST request returns 404", async () => {
-
-    });
+  });
 });
