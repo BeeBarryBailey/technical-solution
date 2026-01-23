@@ -1,9 +1,13 @@
 import express from 'express';
 import VehicleRepository from '../repositories/vehicle-repository';
-import { getAllHandler, getByMakeHandler, getByModelHandler } from './handlers';
+import { 
+  getAllHandler,
+  getByMakeHandler, 
+  getByModelHandler,
+  getByMinPriceHandler 
+} from './handlers';
 
 export const app = express();
-// app.use(express.json()); # for POST
 
 const vehicleRepository = new VehicleRepository();
 
@@ -17,4 +21,9 @@ app.get('/vehicles/make', (req, res) => {
 app.get('/vehicles/model/:model', getByModelHandler(vehicleRepository));
 app.get('/vehicles/model', (req, res) => {
   res.status(400).json({ message: 'model is required' });
+});
+
+app.get('/vehicles/minPrice/:minPrice', getByMinPriceHandler(vehicleRepository));
+app.get('/vehicles/minPrice', (req, res) => {
+    res.status(400).json({ message: 'minimum price is required' });
 });

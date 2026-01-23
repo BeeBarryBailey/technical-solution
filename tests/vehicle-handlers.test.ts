@@ -1,6 +1,11 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { Request, Response } from 'express';
-import { getAllHandler, getByMakeHandler, getByModelHandler } from '../api/handlers';
+import { 
+  getAllHandler,
+  getByMakeHandler,
+  getByModelHandler,
+  getByMinPriceHandler,
+} from '../api/handlers';
 
 import VehicleRepository from '../repositories/vehicle-repository';
 
@@ -9,6 +14,7 @@ describe('vehicle search handlers', () => {
     getAll: ReturnType<typeof vi.fn>,
     getByMake: ReturnType<typeof vi.fn>,
     getByModel: ReturnType<typeof vi.fn>,
+    getByMinPrice: ReturnType<typeof vi.fn>,
   };
   let mockReq: Partial<Request>;
   let mockRes: Partial<Response>;
@@ -18,6 +24,7 @@ describe('vehicle search handlers', () => {
       getAll: vi.fn(),
       getByMake: vi.fn(),
       getByModel: vi.fn(),
+      getByMinPrice: vi.fn(),
     };
     mockReq = {};
     mockRes = {
@@ -190,6 +197,81 @@ describe('vehicle search handlers', () => {
         count: 0,
       });
     });
-  })
+  });
+
+  describe('getByMinPrice handler', () => {
+    test('returns 200 and vehicles for a valid minimum price', async () => {
+      const vehicles = [
+          { "price": 12999, "make": "BMW", "model": "1 SERIES", "trim": "118d SE 5dr [Nav]", "colour": "Alpine white", "co2_level": 104, "transmission": "Manual", "fuel_type": "Diesel", "engine_size": 1995, "date_first_reg": "28/12/2017", "mileage": 11271 },
+      ];
+
+      mockRepo.getByMinPrice.mockReturnValue(vehicles);
+      mockReq = { params: { minPrice: '10000' } };
+
+      const handler = getByMinPriceHandler(mockRepo as unknown as VehicleRepository);
+
+      await handler(mockReq as Request, mockRes as Response);
+
+      expect(mockRepo.getByMinPrice).toHaveBeenCalledOnce();
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        data: vehicles,
+        count: vehicles.length,
+      });
+    });
+
+    test('returns 400 if minimum price is missing', async () => {
+      mockReq = { params: {} };
+
+      const handler = getByMinPriceHandler(mockRepo as unknown as VehicleRepository);
+
+      await handler(mockReq as Request, mockRes as Response);
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({ message: 'minPrice is required' });
+    });
+
+    test('returns 500 if repository throws', async () => {
+      mockRepo.getByMinPrice.mockRejectedValue(new Error('database error'));
+      mockReq = { params: { minPrice: '10000' } };
+
+      const handler = getByMinPriceHandler(mockRepo as unknown as VehicleRepository);
+      
+      await handler(mockReq as Request, mockRes as Response);
+
+      expect(mockRepo.getByMinPrice).toHaveBeenCalledOnce();
+      expect(mockRes.status).toHaveBeenCalledWith(500);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        message: 'failed to fetch vehicles by minimum price',
+      })
+    });
+
+    test('returns 200 and empty array if no vehicles match price', async () => {
+      mockRepo.getByMinPrice.mockResolvedValue([]);
+      mockReq = { params: { minPrice: '99999999' } };
+
+      const handler = getByMinPriceHandler(mockRepo as unknown as VehicleRepository);
+
+      await handler(mockReq as Request, mockRes as Response);
+
+      expect(mockRepo.getByMinPrice).toHaveBeenCalledOnce();
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        data: [],
+        count: 0,
+      });
+    });
+
+    test('returns 400 if price is not a number', async () => {
+      mockReq = { params: { minPrice: '100x00' } };
+
+      const handler = getByMinPriceHandler(mockRepo as unknown as VehicleRepository);
+
+      await handler(mockReq as Request, mockRes as Response);
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({ message: 'minPrice must be a number' });
+    })
+  });
 });
 

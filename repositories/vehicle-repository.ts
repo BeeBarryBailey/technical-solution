@@ -36,6 +36,12 @@ export class VehicleRepository {
       vehicle => vehicle.model.toLowerCase() === model.toLowerCase()
     );
   }
+
+  getByMinPrice(minPrice: number): Vehicle[] {
+    return this._vehicles.filter(
+      vehicle => vehicle.price >= minPrice
+    );
+  }
 }
 
 export default VehicleRepository;
