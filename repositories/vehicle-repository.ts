@@ -1,10 +1,16 @@
 import fs from "fs";
 
 export type Vehicle = {
+  price: number,
   make: string;
   model: string;
   trim: string;
   colour: string;
+  transmission: string;
+  fuel_type: string;
+  engine_size: string;
+  date_first_reg: string;
+  mileage: number;
 };
 
 export class VehicleRepository {
