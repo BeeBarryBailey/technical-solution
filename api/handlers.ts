@@ -74,3 +74,26 @@ export const getByMinPriceHandler = (vehicleRepository: VehicleRepository) => as
     res.status(500).json({ message: 'failed to fetch vehicles by minimum price' })
   };
 };
+
+export const getByMaxPriceHandler = (vehicleRepository: VehicleRepository) => async (req: Request, res: Response) => {
+  const maxPriceStr = req.params.maxPrice;
+  const maxPrice = Number(maxPriceStr);
+
+  if (!maxPriceStr) {
+    return res.status(400).json({ message: 'maxPrice is required' });
+  }
+  else if (isNaN(maxPrice)) {
+    return res.status(400).json({ message: 'maxPrice must be a number' });
+  }
+
+  try {
+    const vehicles = await vehicleRepository.getByMaxPrice(maxPrice);
+
+    res.status(200).json({
+        data: vehicles,
+        count: vehicles.length,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'failed to fetch vehicles by maximum price' })
+  };
+};

@@ -4,7 +4,8 @@ import {
   getAllHandler,
   getByMakeHandler, 
   getByModelHandler,
-  getByMinPriceHandler 
+  getByMinPriceHandler,
+  getByMaxPriceHandler
 } from './handlers';
 
 export const app = express();
@@ -26,4 +27,9 @@ app.get('/vehicles/model', (req, res) => {
 app.get('/vehicles/minPrice/:minPrice', getByMinPriceHandler(vehicleRepository));
 app.get('/vehicles/minPrice', (req, res) => {
     res.status(400).json({ message: 'minimum price is required' });
+});
+
+app.get('/vehicles/maxPrice/:maxPrice', getByMaxPriceHandler(vehicleRepository));
+app.get('/vehicles/maxPrice', (req, res) => {
+    res.status(400).json({ message: 'maximum price is required' });
 });

@@ -5,6 +5,7 @@ import {
   getByMakeHandler,
   getByModelHandler,
   getByMinPriceHandler,
+  getByMaxPriceHandler
 } from '../api/handlers';
 
 import VehicleRepository from '../repositories/vehicle-repository';
@@ -15,6 +16,7 @@ describe('vehicle search handlers', () => {
     getByMake: ReturnType<typeof vi.fn>,
     getByModel: ReturnType<typeof vi.fn>,
     getByMinPrice: ReturnType<typeof vi.fn>,
+    getByMaxPrice: ReturnType<typeof vi.fn>,
   };
   let mockReq: Partial<Request>;
   let mockRes: Partial<Response>;
@@ -25,6 +27,7 @@ describe('vehicle search handlers', () => {
       getByMake: vi.fn(),
       getByModel: vi.fn(),
       getByMinPrice: vi.fn(),
+      getByMaxPrice: vi.fn()
     };
     mockReq = {};
     mockRes = {
@@ -271,6 +274,81 @@ describe('vehicle search handlers', () => {
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
       expect(mockRes.json).toHaveBeenCalledWith({ message: 'minPrice must be a number' });
+    })
+  });
+
+  describe('getByMaxPrice handler', () => {
+    test('returns 200 and vehicles for a valid maximum price', async () => {
+      const vehicles = [
+          { "price": 12999, "make": "BMW", "model": "1 SERIES", "trim": "118d SE 5dr [Nav]", "colour": "Alpine white", "co2_level": 104, "transmission": "Manual", "fuel_type": "Diesel", "engine_size": 1995, "date_first_reg": "28/12/2017", "mileage": 11271 },
+      ];
+
+      mockRepo.getByMaxPrice.mockReturnValue(vehicles);
+      mockReq = { params: { maxPrice: '12999' } };
+
+      const handler = getByMaxPriceHandler(mockRepo as unknown as VehicleRepository);
+
+      await handler(mockReq as Request, mockRes as Response);
+
+      expect(mockRepo.getByMaxPrice).toHaveBeenCalledOnce();
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        data: vehicles,
+        count: vehicles.length,
+      });
+    });
+
+    test('returns 400 if maximum price is missing', async () => {
+      mockReq = { params: {} };
+
+      const handler = getByMaxPriceHandler(mockRepo as unknown as VehicleRepository);
+
+      await handler(mockReq as Request, mockRes as Response);
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({ message: 'maxPrice is required' });
+    });
+
+    test('returns 500 if repository throws', async () => {
+      mockRepo.getByMaxPrice.mockRejectedValue(new Error('database error'));
+      mockReq = { params: { maxPrice: '999999' } };
+
+      const handler = getByMaxPriceHandler(mockRepo as unknown as VehicleRepository);
+      
+      await handler(mockReq as Request, mockRes as Response);
+
+      expect(mockRepo.getByMaxPrice).toHaveBeenCalledOnce();
+      expect(mockRes.status).toHaveBeenCalledWith(500);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        message: 'failed to fetch vehicles by maximum price',
+      })
+    });
+
+    test('returns 200 and empty array if no vehicles match price', async () => {
+      mockRepo.getByMaxPrice.mockResolvedValue([]);
+      mockReq = { params: { maxPrice: '99999999' } };
+
+      const handler = getByMaxPriceHandler(mockRepo as unknown as VehicleRepository);
+
+      await handler(mockReq as Request, mockRes as Response);
+
+      expect(mockRepo.getByMaxPrice).toHaveBeenCalledOnce();
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        data: [],
+        count: 0,
+      });
+    });
+
+    test('returns 400 if price is not a number', async () => {
+      mockReq = { params: { maxPrice: '100x00' } };
+
+      const handler = getByMaxPriceHandler(mockRepo as unknown as VehicleRepository);
+
+      await handler(mockReq as Request, mockRes as Response);
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({ message: 'maxPrice must be a number' });
     })
   });
 });

@@ -42,6 +42,12 @@ export class VehicleRepository {
       vehicle => vehicle.price >= minPrice
     );
   }
+
+  getByMaxPrice(maxPrice: number): Vehicle[] {
+    return this._vehicles.filter(
+      vehicle => vehicle.price <= maxPrice
+    );
+  }
 }
 
 export default VehicleRepository;
