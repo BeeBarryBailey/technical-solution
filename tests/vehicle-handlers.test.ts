@@ -23,8 +23,8 @@ describe('vehicle search handlers', () => {
   describe('getAll handler', () => {
     test('returns 200 and all vehicles', async () => {
       const vehicles = [
-        { make: 'Toyota', model: 'Corolla', trim: 'LE', colour: 'Blue' },
-        { make: 'Honda', model: 'Civic', trim: 'EX', colour: 'Red' },
+        { "price": 9799, "make": "PEUGEOT", "model": "208", "trim": "1.6 BlueHDi 100 GT Line 5dr [non Start Stop]", "colour": "Nera black", "co2_level": 90, "transmission": "Manual", "fuel_type": "Diesel", "engine_size": 1560, "date_first_reg": "19/04/2018", "mileage": 14176 },
+        { "price": 12999, "make": "BMW", "model": "1 SERIES", "trim": "118d SE 5dr [Nav]", "colour": "Alpine white", "co2_level": 104, "transmission": "Manual", "fuel_type": "Diesel", "engine_size": 1995, "date_first_reg": "28/12/2017", "mileage": 11271 },
       ];
 
       mockRepo.getAll.mockReturnValue(vehicles);
