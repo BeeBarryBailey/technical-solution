@@ -32,3 +32,22 @@ export const getByMakeHandler = (vehicleRepository: VehicleRepository) => async 
         res.status(500).json({ message: 'failed to fetch vehicles by make' })
     }
 }
+
+export const getByModelHandler = (vehicleRepository: VehicleRepository) => async (req: Request, res: Response) => {
+    const model = req.params.model;
+    
+    if (!model || typeof model !== 'string') {
+        return res.status(400).json({ message: 'model is required' });
+    }
+
+    try {
+        const vehicles = await vehicleRepository.getByModel(model);
+
+        res.status(200).json({
+            data: vehicles,
+            count: vehicles.length,
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'failed to fetch vehicles by model' })
+    }
+}

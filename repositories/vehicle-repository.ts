@@ -24,6 +24,12 @@ export class VehicleRepository {
       vehicle => vehicle.make.toLowerCase() === make.toLowerCase()
     );
   }
+
+  getByModel(model: string): Vehicle[] {
+    return this._vehicles.filter(
+      vehicle => vehicle.model.toLowerCase() === model.toLowerCase()
+    );
+  }
 }
 
 export default VehicleRepository;
