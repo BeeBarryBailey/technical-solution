@@ -18,6 +18,12 @@ export class VehicleRepository {
   getAll(): Vehicle[] {
     return this._vehicles;
   }
+
+  getByMake(make: string): Vehicle[] {
+    return this._vehicles.filter(
+      vehicle => vehicle.make.toLowerCase() === make.toLowerCase()
+    );
+  }
 }
 
 export default VehicleRepository;
